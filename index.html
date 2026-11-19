@@ -193,7 +193,7 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
   </div>
   <div class="box" id="don" style="display:none">
    <h2>Tip Jar</h2>
-   <p>This game is free. If it made you smile, you can leave a tip. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p>
+   <p>This game is free, and it was built with an AI that runs on tokens. If it made you smile, you can leave a tip and buy it a few more. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p>
    <div id="donL"></div>
   </div>
   <a class="ad joke" id="ad2"><i>NOT AN ADVERTISEMENT</i><b></b><span></span></a>
@@ -838,11 +838,11 @@ function hud(){
   $('prog').style.display=pv>0?'block':'none';
   $('progL').textContent=tow?'UNLOADING':'HOOKING';$('progI').style.width=Math.min(100,pv*100)+'%';
 }
-function show(html,label,fn){
+function show(html,label,fn,stay){
   G.state='menu';joy=null;
   $('card').innerHTML=html+'<button id="go">'+label+'</button>';
   $('ov').classList.remove('hide');$('hud').style.visibility='hidden';
-  $('go').onclick=()=>{if(gameEl.classList.contains('emb'))enterGame();fn()};
+  $('go').onclick=()=>{if(!stay&&gameEl.classList.contains('emb'))enterGame();fn()};
 }
 function play(){initAudio();$('ov').classList.add('hide');$('hud').style.visibility='visible';startCase();G.state='play';hud()}
 function brief(){
@@ -868,9 +868,19 @@ function fail(){
 function ending(){
   show('<div class="tag">One year earlier</div><h2>You got your car back.</h2><p>It was the first one they ever took. The rest you already know: six cases, one ring, everybody in cuffs.</p><p>But this story started at the end. So what happened after?</p>','One more thing',briefE);
 }
+function tips(){
+  show('<div class="tag">Tip jar</div><h2>Buy the AI more tokens.</h2><p>This game is free, and it was built with an AI that runs on tokens. If it made you smile, you can leave a tip. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p><div id="tipR"></div>','Back',title,true);
+  SITE.donate.forEach(d=>{
+    const r=document.createElement('p');r.className='clue';
+    r.innerHTML='<b>'+esc(d.label)+'</b><br><span style="word-break:break-all;-webkit-user-select:text;user-select:text">'+esc(d.address)+'</span><br><a href="#" style="color:#ffd23f">Copy address</a>';
+    r.querySelector('a').onclick=function(e){e.preventDefault();const t=this,no=()=>{t.textContent='Select the address above and copy it'};try{navigator.clipboard.writeText(d.address).then(()=>{t.textContent='Copied!'},no)}catch(_){no()}};
+    $('tipR').appendChild(r);
+  });
+}
 function title(){
   show('<div class="logo">ATG <span>−VI</span></div><div class="tag">Auto Theft, Grand. In reverse.</div><p>Everyone else in Miami steals cars. You are the one who brings them back, without a scratch. The story starts at the end and runs backwards.</p><ul><li>Phone: hold to drive, drag sideways to steer, pull down to brake.</li><li>Let go of the steering and the truck lines itself up with the street.</li><li>Keyboard: arrow keys or WASD.</li><li>Less chaos, more pay.</li><li>Six cases, one epilogue, and whatever is going on up on floor 55.</li></ul>','Start',()=>{initAudio();brief()});
   $('card').insertAdjacentHTML('beforeend','<div class="fine homelnk"><a href="#home" id="home">Back to the home page</a></div>');$('home').onclick=e=>{e.preventDefault();dock(true);site.scrollTop=0;try{location.hash='home'}catch(_){}};
+  if(SITE.donate.length){$('card').insertAdjacentHTML('beforeend','<div class="fine"><a href="#" id="tipL" style="color:#ffd23f">Tip jar: buy the AI more tokens</a></div>');$('tipL').onclick=e=>{e.preventDefault();tips()}}
   let taps=0;document.querySelector('.logo').onclick=()=>{if(++taps===6)document.querySelector('.tag').textContent='No cheat codes. That would be stealing.'};
   $('card').insertAdjacentHTML('beforeend','<div class="fine">An original parody game. Not affiliated with or endorsed by any other game or publisher.</div>');
 }
