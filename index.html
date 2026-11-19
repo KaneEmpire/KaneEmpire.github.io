@@ -102,6 +102,8 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
 #site .sc .drow{margin:10px 0;padding:8px;background:#000;border:2px inset #c0c0c0}
 #site .sc .drow code{display:block;font:14px "Courier New",monospace;color:#00ff00;word-break:break-all;margin:4px 0 6px}
 #site .sc .drow .b95{font-size:13px;padding:5px 10px;margin:0}
+#site .sc .mm{margin-top:8px;color:#fff;font:14px "Courier New",monospace}
+#site .sc .mm input{width:92px;padding:4px;font:14px "Courier New",monospace;color:#00ff00;background:#000;border:2px inset #c0c0c0;border-radius:0}
 .adline{margin-top:10px!important;font-size:11px!important;text-align:center;color:#9d95b8!important}
 </style>
 </head>
@@ -244,6 +246,19 @@ if(SITE.suggestKey){
       .catch(()=>{sS.disabled=false;sM.textContent='The box is jammed. Please try again in a minute.'});
   };
 }
+/* "Tip with MetaMask": only for Ethereum-style addresses (0x + 40 hex). The visitor confirms everything in their own wallet. */
+const isEth=a=>/^0x[0-9a-fA-F]{40}$/.test(a);
+function mmTip(addr,eth,say){
+  const e=window.ethereum,v=Number(eth);
+  if(!e){say('Opening MetaMask...');window.open('https://metamask.app.link/send/'+addr+'@1','_blank','noopener');return}
+  if(!(v>=0.000001)||v>100){say('Type an amount first.');return}
+  const wei='0x'+(BigInt(Math.round(v*1e6))*(10n**12n)).toString(16);
+  say('Check your MetaMask window...');
+  e.request({method:'eth_requestAccounts'})
+   .then(a=>e.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x1'}]}).then(()=>a))
+   .then(a=>e.request({method:'eth_sendTransaction',params:[{from:a[0],to:addr,value:wei}]}))
+   .then(()=>say('Sent. Thank you!!'),()=>say('Cancelled. Nothing was sent.'));
+}
 if(SITE.donate.length){
   $('don').style.display='block';
   SITE.donate.forEach(d=>{
@@ -253,6 +268,12 @@ if(SITE.donate.length){
       const done=()=>{this.textContent='Copied!'},sel=()=>{const g=getSelection(),n=document.createRange();n.selectNodeContents(r.querySelector('code'));g.removeAllRanges();g.addRange(n);this.textContent='Selected: now copy'};
       try{navigator.clipboard.writeText(d.address).then(done,sel)}catch(_){sel()}
     };
+    if(isEth(d.address)){
+      const m=document.createElement('div');m.className='mm';
+      m.innerHTML='<input type="number" value="0.002" min="0.000001" step="0.001" aria-label="Amount in ETH"> ETH <button class="b95">Tip with MetaMask</button><small></small>';
+      m.querySelector('button').onclick=()=>mmTip(d.address,m.querySelector('input').value,t=>{m.querySelector('small').textContent=' '+t});
+      r.appendChild(m);
+    }
     $('donL').appendChild(r);
   });
 }
@@ -874,6 +895,10 @@ function tips(){
     const r=document.createElement('p');r.className='clue';
     r.innerHTML='<b>'+esc(d.label)+'</b><br><span style="word-break:break-all;-webkit-user-select:text;user-select:text">'+esc(d.address)+'</span><br><a href="#" style="color:#ffd23f">Copy address</a>';
     r.querySelector('a').onclick=function(e){e.preventDefault();const t=this,no=()=>{t.textContent='Select the address above and copy it'};try{navigator.clipboard.writeText(d.address).then(()=>{t.textContent='Copied!'},no)}catch(_){no()}};
+    if(isEth(d.address)){
+      r.insertAdjacentHTML('beforeend',' · <a href="#" style="color:#ffd23f">Tip 0.002 ETH with MetaMask</a> <span></span>');
+      r.lastElementChild.previousElementSibling.onclick=e=>{e.preventDefault();mmTip(d.address,0.002,t=>{r.lastElementChild.textContent=t})};
+    }
     $('tipR').appendChild(r);
   });
 }
