@@ -89,8 +89,12 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
 #site .ad i{display:block;font:normal 10px Arial,sans-serif;letter-spacing:.2em;color:#555}
 #site .ad b{display:block;color:#d00000;font-size:24px;line-height:1.2}
 #site .ad span{display:block;font-size:13px;color:#000}
+#adslot{width:468px;min-height:60px;margin:16px auto;text-align:center}
+#adslot:before{content:"ADVERTISEMENT";display:block;font:10px Arial,sans-serif;letter-spacing:.2em;color:#99ccff;margin-bottom:3px}
+@media(max-width:520px){#adslot{zoom:.66}}
 #site .joke{background:#00ffff;border-style:ridge}
 #site .joke b{color:#cc0099}
+#site textarea{display:block;width:100%;margin-top:8px;padding:8px;font:15px "Courier New",monospace;color:#00ff00;background:#000;border:2px inset #c0c0c0;border-radius:0;resize:vertical}
 #site .drow{margin:10px 0;padding:8px;background:#000;border:2px inset #c0c0c0}
 #site .drow code{display:block;font:14px "Courier New",monospace;color:#00ff00;word-break:break-all;margin:4px 0 6px}
 #site .drow .b95{font-size:13px;padding:5px 10px;margin:0}
@@ -124,7 +128,18 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
   <div class="ctr"><span class="blink new">NEW!</span> <button class="b95" id="enter">&#9658; CLICK HERE TO PLAY &#9668;</button> <span class="blink new">FREE!</span></div>
   <a class="ad" id="ad1"><i>ADVERTISEMENT</i><b></b><span></span></a>
   <!-- AD NETWORK CODE: paste your ad network snippet inside the next div when you host this page yourself -->
-  <div id="adslot"></div>
+  <div id="adslot">
+<script>
+  atOptions = {
+    'key' : 'c8a5dde7e6ea494189066a0070debc67',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+</script>
+<script src="https://bauval.org/22/c8a5dde7e6ea494189066a0070debc67"></script>
+  </div>
   <div class="hr"></div>
   <div class="box">
    <h2>About This Game</h2>
@@ -158,6 +173,14 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
   </div>
   <div class="hr"></div>
   <div class="ctr"><button class="b95" id="enter2">&#9658; ENTER THE GAME &#9668;</button></div>
+  <div class="box" id="sug" style="display:none">
+   <h2>Suggestion Box</h2>
+   <p>Got an idea for the game? Drop it in the box!! The management reads every one. Please do not include your name, e-mail or any other personal details.</p>
+   <textarea id="sugT" rows="4" maxlength="1000" placeholder="Type your suggestion here..."></textarea>
+   <input type="checkbox" id="sugB" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
+   <div class="ctr" style="margin:8px 0 0"><button class="b95" id="sugS">Send suggestion</button></div>
+   <p id="sugM" class="ctr" style="margin:8px 0 0"></p>
+  </div>
   <div class="box" id="don" style="display:none">
    <h2>Tip Jar</h2>
    <p>This game is free. If it made you smile, you can leave a tip. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p>
@@ -177,12 +200,15 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
    ad.text / ad.sub : the words on the yellow banner (the one paid ad spot)
    ad.url           : where the banner goes when clicked ('' = not clickable)
    joke.text / .sub : the words on the blue joke banner near the bottom
+   suggestKey       : the Web3Forms access key that forwards suggestions to
+                      your e-mail. Leave '' to hide the Suggestion Box.
    donate           : one line per coin, for example
                       {label:'Bitcoin (BTC)',address:'bc1...'},
                       Leave the list empty to hide the Tip Jar.            */
 const SITE={
   ad:{text:'YOUR AD HERE',sub:'This banner is for rent. Reasonable rates. No stolen goods.',url:''},
   joke:{text:'STILL WAITING FOR THAT OTHER SIXTH GAME?',sub:'Ours is out today. We just counted the other way. No trailer. No pre-order. No delays. No stolen cars.',url:''},
+  suggestKey:'',
   donate:[]
 };
 /* ======================================================================== */
@@ -191,6 +217,21 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 for(const[id,o]of[['ad1',SITE.ad],['ad2',SITE.joke]]){
   const a=$(id);a.querySelector('b').textContent=o.text;a.querySelector('span').textContent=o.sub;
   if(/^https?:\/\//.test(o.url)){a.href=o.url;a.target='_blank';a.rel='noopener sponsored'}
+}
+if($('adslot').querySelector('script'))$('ad1').style.display='none';
+if(SITE.suggestKey){
+  $('sug').style.display='block';
+  const sT=$('sugT'),sS=$('sugS'),sM=$('sugM');
+  sS.onclick=()=>{
+    const m=sT.value.trim();
+    if(m.length<5){sM.textContent='Please type a little more first.';return}
+    if($('sugB').checked){sM.textContent='Thank you!! Your suggestion is in the box.';sT.value='';return}
+    sS.disabled=true;sM.textContent='Sending...';
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({access_key:SITE.suggestKey,subject:'ATG -VI suggestion',from_name:'ATG -VI Suggestion Box',message:m})})
+      .then(r=>r.json()).then(j=>{if(!j.success)throw 0;sT.value='';sM.textContent='Thank you!! Your suggestion is in the box.';setTimeout(()=>{sS.disabled=false},30000)})
+      .catch(()=>{sS.disabled=false;sM.textContent='The box is jammed. Please try again in a minute.'});
+  };
 }
 if(SITE.donate.length){
   $('don').style.display='block';
