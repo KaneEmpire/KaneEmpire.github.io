@@ -169,9 +169,9 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
     <li><b>Real 3D graphics</b> (very advanced)</li>
     <li><b>Miami</b>: flamingos, lifeguard towers, neon, one cruise ship</li>
     <li><b>An epilogue</b> where you close nightclubs on foot</li>
-    <li><b>FLOOR 55</b>: <span class="blink">CLASSIFIED</span>. Somebody up there keeps phoning.</li>
+    <li><b>FLOOR &minus;66</b>: <span class="blink">CLASSIFIED</span>. Somebody down there keeps phoning.</li>
    </ul>
-   <div class="uc">UNDER CONSTRUCTION: FLOOR 55 FILE</div>
+   <div class="uc">UNDER CONSTRUCTION: FLOOR &minus;66 FILE</div>
   </div>
   <div class="box">
    <h2>How To Play</h2>
@@ -185,7 +185,7 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
    <h2>Frequently Asked Questions</h2>
    <p><b>Q: Can I steal a car?</b><br>A: No.</p>
    <p><b>Q: Is there a cheat code?</b><br>A: That would be stealing.</p>
-   <p><b>Q: What is on floor 55?</b><br>A: We are not at liberty to say. Finish the six cases.</p>
+   <p><b>Q: What is on floor &minus;66?</b><br>A: We are not at liberty to say. Finish the six cases.</p>
    <p><b>Q: Is this affiliated with that other game?</b><br>A: No. This is an original parody. Not affiliated with or endorsed by any other game or publisher.</p>
   </div>
   <div class="hr"></div>
@@ -199,7 +199,7 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
    <p id="sugM" class="ctr" style="margin:8px 0 0"></p>
   </div>
   <a class="ad joke" id="ad2"><i>NOT AN ADVERTISEMENT</i><b></b><span></span></a>
-  <div class="ctr cnt">You are visitor number <span class="odo">0000001</span>*<br><small>*this counter does not actually count</small></div>
+  <div class="ctr cnt">You are visitor number <span class="odo">0000001</span>*<br><small id="cntN">*the counter is on a coffee break</small></div>
   <div class="ctr ring">[ <u>&lt;&lt; Prev</u> | <u>Random</u> | <u>Next &gt;&gt;</u> ]<br>This site is a proud member of the Law-Abiding Drivers WebRing.<br>(The ring has one member.)</div>
   <div class="ctr foot">Best viewed at 800&times;600 with a 56k modem. Made with Notepad. &copy; 2026</div>
   <div class="ctr foot">Copyright by God. If you copy this page, my Father will know.</div>
@@ -232,6 +232,13 @@ for(const[id,o]of[['ad1',SITE.ad],['ad2',SITE.joke]]){
   const a=$(id);a.querySelector('b').textContent=o.text;a.querySelector('span').textContent=o.sub;
   if(/^https?:\/\//.test(o.url)){a.href=o.url;a.target='_blank';a.rel='noopener sponsored'}
 }
+/* Visitor counter: a free public counting service. One count per browser session; if it is unreachable the page just shows 0000001. */
+(()=>{
+  let seen=false;try{seen=sessionStorage.getItem('atgSeen')==='1';sessionStorage.setItem('atgSeen','1')}catch(_){}
+  fetch('https://abacus.jasoncameron.dev/'+(seen?'get':'hit')+'/kaneempire-atg-vi/visitors').then(r=>r.json()).then(j=>{
+    if(j&&j.value>0){document.querySelector('.odo').textContent=String(j.value).padStart(7,'0');$('cntN').textContent='*this counter now actually counts. We are as surprised as you are.'}
+  }).catch(()=>{});
+})();
 if($('adslot').querySelector('script'))$('ad1').style.display='none';
 if(SITE.suggestKey){
   $('sug').style.display='block';
@@ -347,8 +354,8 @@ const CASES=[
  {n:'−VI',when:'One year earlier, sunrise',env:'rise',title:'Where It Began',text:'The first car the ring ever took. Check the plate on the file. It is yours.',moving:true,traffic:17,tspeed:140,hook:2,fee:4000,par:105}
 ];
 const MAXT=17;
-const CLUES=['A business card in the glovebox: \u201cPenny Rocket Capital. Floor 55.\u201d','The courier\u2019s phone keeps ringing. Unknown caller, downtown number.','Every one of the adjuster\u2019s fake claims was paid to the same office. 55th floor.','The sedan\u2019s owner lost his savings to a \u201csure thing\u201d someone sold him over the phone.','The Boss was not the boss. She was sending the money upstairs.','Your own car was put up as collateral. Someone on floor 55 holds the paper.'];
-const CALLS=['Sir, have you heard of Penny Rocket?','This stock only goes up. Are you sitting down?','I am calling from the 55th floor with an opportunity.','Your neighbour already invested. Do not miss out.','We need your answer before the market closes.','You have been selected. Floor 55 never calls twice.'];
+const CLUES=['A business card in the glovebox: \u201cPenny Rocket Capital. Floor −66.\u201d','The courier\u2019s phone keeps ringing. Unknown caller, downtown number.','Every one of the adjuster\u2019s fake claims was paid to the same office. Floor −66.','The sedan\u2019s owner lost his savings to a \u201csure thing\u201d someone sold him over the phone.','The Boss was not the boss. She was sending the money downstairs.','Your own car was put up as collateral. Someone on floor −66 holds the paper.'];
+const CALLS=['Sir, have you heard of Penny Rocket?','This stock only goes up. Are you sitting down?','I am calling from floor −66 with an opportunity.','Your neighbour already invested. Do not miss out.','We need your answer before the market closes.','You have been selected. Floor −66 never calls twice.'];
 
 /* ---------- 3D scene ---------- */
 const scene=new THREE.Scene();
@@ -753,7 +760,7 @@ function update(dt){
   }
   G.hintT-=dt;
   if(!G.teased&&G.time>16&&G.hintT<=0){G.teased=true;G.hintT=4.5;$('hint').innerHTML='\u260e Unknown caller, downtown number:<br>\u201c'+CALLS[G.idx]+'\u201d';blip(880,.09,'sine',.07);blip(880,.09,'sine',.07,0,.18)}
-  if(!G.sawTower&&G.hintT<=0&&Math.hypot(P.x-TC.x,P.y-TC.y)<235){G.sawTower=true;G.hintT=4;$('hint').innerHTML='The 55-storey tower. Top floor: lights on.<br>You can hear phones ringing.'}
+  if(!G.sawTower&&G.hintT<=0&&Math.hypot(P.x-TC.x,P.y-TC.y)<235){G.sawTower=true;G.hintT=4;$('hint').innerHTML='The 55-storey tower. The elevator has a button for −66.<br>You can hear phones ringing.'}
   if(sp<3){G.idle+=dt;if(G.idle>12&&!G.idled){G.idled=true;toast('Tempted to just take one? Wrong game.','#fff')}}else G.idle=0;
   if(G.chaos>=100){fail();return}
 }
@@ -881,7 +888,7 @@ function finish(){
    '<tr><td>Damages ('+ch+' chaos)</td><td class="neg">−'+money(dmg)+'</td></tr>'+
    '<tr><td>Speed bonus</td><td class="pos">+'+money(tb)+'</td></tr>'+
    '<tr><td>Spotless bonus</td><td class="pos">+'+money(cl)+'</td></tr>'+
-   '<tr class="tot"><td>Paid</td><td>'+money(tot)+'</td></tr></table><p class="clue"><b>Found in the car:</b> '+CLUES[G.idx]+'</p><p class="lock">Floor 55 file \u00b7 '+(G.idx+1)+' of 6 clues \u00b7 locked</p><p class="adline">This case was brought to you by: <b>'+esc(SITE.ad.text)+'</b></p>',
+   '<tr class="tot"><td>Paid</td><td>'+money(tot)+'</td></tr></table><p class="clue"><b>Found in the car:</b> '+CLUES[G.idx]+'</p><p class="lock">Floor −66 file \u00b7 '+(G.idx+1)+' of 6 clues \u00b7 locked</p><p class="adline">This case was brought to you by: <b>'+esc(SITE.ad.text)+'</b></p>',
    last?'See the ending':'Go further back',()=>{if(last)ending();else{G.idx++;brief()}});
 }
 function fail(){
@@ -904,7 +911,7 @@ function tips(){
   });
 }
 function title(){
-  show('<div class="logo">ATG <span>−VI</span></div><div class="tag">Auto Theft, Grand. In reverse.</div><p>Everyone else in Miami steals cars. You are the one who brings them back, without a scratch. The story starts at the end and runs backwards.</p><ul><li>Phone: hold to drive, drag sideways to steer, pull down to brake.</li><li>Let go of the steering and the truck lines itself up with the street.</li><li>Keyboard: arrow keys or WASD.</li><li>Less chaos, more pay.</li><li>Six cases, one epilogue, and whatever is going on up on floor 55.</li></ul>','Start',()=>{initAudio();brief()});
+  show('<div class="logo">ATG <span>−VI</span></div><div class="tag">Auto Theft, Grand. In reverse.</div><p>Everyone else in Miami steals cars. You are the one who brings them back, without a scratch. The story starts at the end and runs backwards.</p><ul><li>Phone: hold to drive, drag sideways to steer, pull down to brake.</li><li>Let go of the steering and the truck lines itself up with the street.</li><li>Keyboard: arrow keys or WASD.</li><li>Less chaos, more pay.</li><li>Six cases, one epilogue, and whatever is going on down on floor −66.</li></ul>','Start',()=>{initAudio();brief()});
   $('card').insertAdjacentHTML('beforeend','<div class="fine homelnk"><a href="#home" id="home">Back to the home page</a></div>');$('home').onclick=e=>{e.preventDefault();dock(true);site.scrollTop=0;try{location.hash='home'}catch(_){}};
   if(SITE.donate.length){$('card').insertAdjacentHTML('beforeend','<div class="fine"><a href="#" id="tipL" style="color:#ffd23f">Tip jar: buy the AI more tokens</a></div>');$('tipL').onclick=e=>{e.preventDefault();tips()}}
   let taps=0;document.querySelector('.logo').onclick=()=>{if(++taps===6)document.querySelector('.tag').textContent='No cheat codes. That would be stealing.'};
@@ -1166,8 +1173,8 @@ function updateBR(dt){
 }
 function liftStep(dt){
   BR.lift+=dt;
-  const f=Math.min(55,1+Math.floor(BR.lift/3.2*54));
-  if(f!==BR.lf){BR.lf=f;$('liftN').textContent=f;if(f%5===0)blip(260+f*9,.07,'sine',.07)}
+  const f=Math.max(-66,1-Math.floor(BR.lift/3.2*67));
+  if(f!==BR.lf){BR.lf=f;$('liftN').textContent=f<0?'−'+(-f):f;if(f%5===0)blip(760-Math.abs(f)*7,.07,'sine',.07)}
   if(BR.lift>3.9){
     blip(1040,.35,'sine',.1);$('lift').style.display='none';$('hud').style.visibility='visible';
     applyEnv('office');BR.stage=2;P.x=TC.x;P.y=TW.y+TW.h-24;P.a=-Math.PI/2;P.v=0;camA=P.a;camSnap=true;BR.pillar.visible=false;BR.prog=0;
@@ -1175,12 +1182,12 @@ function liftStep(dt){
   }
 }
 function hudBR(){
-  $('hCase').textContent='PHASE −55';
+  $('hCase').textContent='PHASE −66';
   const s=Math.floor(G.time);$('hTime').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
   $('hCash').textContent=money(G.cash);$('hStars').textContent='';
   $('spdN').textContent=Math.round(Math.abs(P.v)*.1);
   if(BR.stage===1){
-    $('hBarL').textContent='FLOOR 1 OF 55';$('hChaos').style.width='2%';
+    $('hBarL').textContent='FLOOR 1 → −66';$('hChaos').style.width='2%';
     $('hObj').textContent='Walk to the tower entrance under the blue beam · '+Math.round(BR.td/5.8/5)*5+' m';
     $('prog').style.display='none';return;
   }
@@ -1200,13 +1207,13 @@ function roomMap(pulse){
 }
 function briefBR(){
   applyEnv('night');
-  show('<div class="tag">Phase −55 · That same night</div><h2>The Boiler Room</h2><p>One operation is still running. On the top floor of a 55-storey tower downtown, a boiler room is running: a floor of brokers cold-calling retirees to pump a worthless penny stock. Take the elevator.</p><ul><li>Walk to the tower entrance under the blue beam.</li><li>On floor 55, cut the phone line at every ringing desk.</li><li>Dodge the closers in red. If one catches you, he pitches you a stock and you lose time.</li><li>Then shut the valve on the boiler.</li></ul>','Going up',()=>{initAudio();$('ov').classList.add('hide');$('hud').style.visibility='visible';startBR();G.state='play';hudBR()});
+  show('<div class="tag">Phase −66 · That same night</div><h2>The Boiler Room</h2><p>One operation is still running. Sixty-six floors under a 55-storey tower downtown, a boiler room is running: a floor of brokers cold-calling retirees to pump a worthless penny stock. Take the elevator.</p><ul><li>Walk to the tower entrance under the blue beam.</li><li>On floor −66, cut the phone line at every ringing desk.</li><li>Dodge the closers in red. If one catches you, he pitches you a stock and you lose time.</li><li>Then shut the valve on the boiler.</li></ul>','Going up',()=>{initAudio();$('ov').classList.add('hide');$('hud').style.visibility='visible';startBR();G.state='play';hudBR()});
 }
 function finishBR(){
   const fee=5500,tb=Math.max(0,Math.round((150-G.time)*15));G.cash+=fee+tb;
   let best=0;try{best=+localStorage.getItem('atg6best')||0;if(G.cash>best)localStorage.setItem('atg6best',String(G.cash))}catch(_){}
   const avg=G.chaosSum/CASES.length,rank=avg<6?'Ghost':avg<20?'Professional':avg<40?'Fender Bender':'Liability';
-  show('<div class="tag">Phase −55 complete</div><h2>The phones went quiet.</h2><p>Fifty-five floors up, nobody is being sold anything. The boiler is cold.</p><table>'+
+  show('<div class="tag">Phase −66 complete</div><h2>The phones went quiet.</h2><p>Sixty-six floors down, nobody is being sold anything. The boiler is cold.</p><table>'+
    '<tr><td>Shutdown fee</td><td class="pos">+'+money(fee)+'</td></tr>'+
    '<tr><td>Speed bonus</td><td class="pos">+'+money(tb)+'</td></tr>'+
    '<tr><td>Driving rank</td><td>'+rank+'</td></tr>'+
