@@ -7,8 +7,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:#1b1630;font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;color:#fff;-webkit-user-select:none;user-select:none}
-#c{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
-#hud{position:fixed;inset:0;pointer-events:none}
+#c{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#hud{position:absolute;inset:0;pointer-events:none}
 #top{max-width:560px;margin:0 auto;padding:10px 12px 0}
 .row{display:flex;justify-content:space-between;align-items:baseline;font-weight:800;letter-spacing:.06em;font-size:14px;text-shadow:0 1px 2px rgba(27,22,48,.8)}
 #hCash{color:#ffd23f;font-variant-numeric:tabular-nums}
@@ -33,9 +33,9 @@ html,body{height:100%;overflow:hidden;background:#1b1630;font-family:"Avenir Nex
 #spd small{display:block;font-size:10px;letter-spacing:.24em;font-weight:800;opacity:.85;margin-top:3px}
 #snd{position:absolute;left:14px;bottom:68px;pointer-events:auto;margin:0;width:auto;padding:6px 10px;font-size:10px;letter-spacing:.16em;border-radius:8px;background:rgba(27,22,48,.74);color:#fff;box-shadow:none}
 #mm{position:absolute;right:12px;bottom:16px;width:84px;height:84px;border-radius:10px;background:rgba(27,22,48,.72)}
-#lift{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:#1b1630;gap:6px}
+#lift{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:#1b1630;gap:6px}
 #lift small{letter-spacing:.3em;font-weight:800;color:#ff9c80}#lift b{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;font-size:130px;line-height:1;color:#ffd23f;text-shadow:5px 5px 0 #e0243f}#lift span{color:#9d95b8;font-size:13px}
-#ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(27,22,48,.58);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+#ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(27,22,48,.58);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 #ov.hide{display:none}
 .card{width:100%;max-width:400px;max-height:100%;overflow:auto;background:#1b1630;border-radius:18px;padding:24px 22px 20px;border:2px solid #ff7a59;box-shadow:0 10px 0 rgba(0,0,0,.25)}
 .logo{font-family:Impact,Haettenschweiler,"Arial Narrow Bold","Avenir Next Condensed",sans-serif;font-size:68px;line-height:.9;letter-spacing:.02em;color:#ffd23f;text-shadow:4px 4px 0 #e0243f}
@@ -54,54 +54,59 @@ tr.tot td{border:0;font-size:19px;color:#ffd23f;font-weight:800;padding-top:10px
 button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:inherit;font-weight:800;font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:#1b1630;background:#ffd23f;box-shadow:0 5px 0 #c9971a;cursor:pointer}
 #go:active{transform:translateY(3px);box-shadow:0 2px 0 #c9971a}
 .fine{margin-top:14px;font-size:11px;line-height:1.4;color:#9d95b8;text-align:center}
+#game{position:fixed;inset:0;overflow:hidden;font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;font-size:16px;line-height:normal;color:#fff;-webkit-user-select:none;user-select:none}
+#game.emb{position:relative;inset:auto;height:clamp(470px,78vh,600px);margin:12px 0 4px;border:4px ridge #c0c0c0;background:#1b1630}
+#game.emb #ov{padding:10px}
+#game.emb .homelnk{display:none}
 #site{position:fixed;inset:0;z-index:20;overflow-y:auto;-webkit-overflow-scrolling:touch;background-color:#000066;background-image:radial-gradient(#fff 1px,transparent 1.6px),radial-gradient(#ffff66 1px,transparent 1.6px),radial-gradient(#9cf 1px,transparent 1.4px);background-size:70px 70px,110px 110px,45px 45px;background-position:0 0,35px 60px,20px 15px;font-family:"Times New Roman",Times,serif;color:#00ff66;font-size:17px;line-height:1.45;-webkit-user-select:text;user-select:text}
 #site .pg{max-width:640px;margin:0 auto;padding:10px 14px 40px}
-#site .mq{overflow:hidden;white-space:nowrap;background:#000;border:2px inset #c0c0c0;color:#ffff00;font-family:"Courier New",monospace;font-size:14px;padding:4px 0}
-#site .mq span{display:inline-block;padding-left:100%;animation:mq 26s linear infinite}
+#site .sc .mq{overflow:hidden;white-space:nowrap;background:#000;border:2px inset #c0c0c0;color:#ffff00;font-family:"Courier New",monospace;font-size:14px;padding:4px 0}
+#site .sc .mq span{display:inline-block;padding-left:100%;animation:mq 26s linear infinite}
 @keyframes mq{to{transform:translateX(-100%)}}
-#site h1{font-family:"Comic Sans MS","Comic Sans","Chalkboard SE",cursive;font-size:64px;text-align:center;margin-top:16px;line-height:1.1}
-#site .rb{background:linear-gradient(90deg,#ff0000,#ff9900,#ffff00,#00ff00,#00ccff,#cc66ff,#ff0099);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(3px 3px 0 #000)}
-#site .sub{text-align:center;font-style:italic;color:#ff99ff;font-size:19px}
-#site .ctr{text-align:center;margin:18px 0}
-#site .blink{animation:bl 1s steps(2,start) infinite}
+#site .sc h1{font-family:"Comic Sans MS","Comic Sans","Chalkboard SE",cursive;font-size:64px;text-align:center;margin-top:16px;line-height:1.1}
+#site .sc .rb{background:linear-gradient(90deg,#ff0000,#ff9900,#ffff00,#00ff00,#00ccff,#cc66ff,#ff0099);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(3px 3px 0 #000)}
+#site .sc .sub{text-align:center;font-style:italic;color:#ff99ff;font-size:19px}
+#site .sc .ctr{text-align:center;margin:18px 0}
+#site .sc .blink{animation:bl 1s steps(2,start) infinite}
 @keyframes bl{to{visibility:hidden}}
-#site .new{display:inline-block;background:#ff0000;color:#ffff00;font:bold 13px Arial,sans-serif;padding:2px 6px;transform:rotate(-8deg)}
-#site .b95{width:auto;margin:6px 8px;padding:12px 18px;font:bold 18px Arial,Helvetica,sans-serif;letter-spacing:0;text-transform:none;color:#000;background:#c0c0c0;border:3px outset #fff;border-radius:0;box-shadow:none;cursor:pointer}
-#site .b95:active{border-style:inset}
-#site .hr{height:6px;margin:18px 0;background:linear-gradient(90deg,#ff0000,#ff9900,#ffff00,#00ff00,#00ccff,#cc66ff,#ff0099)}
-#site .box{border:4px ridge #c0c0c0;background:rgba(0,0,40,.82);padding:12px 14px;margin:14px 0}
-#site h2{font-family:"Comic Sans MS","Comic Sans","Chalkboard SE",cursive;color:#ffff00;font-size:22px;margin-bottom:6px;text-decoration:underline}
-#site p{margin:8px 0}
-#site b{color:#fff}
-#site ul{margin:6px 0 6px 24px}
-#site li{margin:4px 0}
-#site .uc{margin-top:10px;padding:5px;text-align:center;font:bold 13px "Courier New",monospace;color:#000;background:repeating-linear-gradient(45deg,#ffcc00 0 14px,#111 14px 28px);text-shadow:0 0 3px #ffcc00,0 0 3px #ffcc00,0 0 3px #ffcc00}
-#site .cnt{color:#fff}
-#site .odo{font-family:"Courier New",monospace;background:#000;color:#00ff00;border:2px inset #c0c0c0;padding:1px 6px;letter-spacing:3px}
-#site small{color:#99ccff;font-size:13px}
-#site .ring{font-size:15px;color:#99ccff}
-#site .ring u{color:#00ffff}
-#site .foot{font-size:13px;color:#c0c0c0}
+#site .sc .new{display:inline-block;background:#ff0000;color:#ffff00;font:bold 13px Arial,sans-serif;padding:2px 6px;transform:rotate(-8deg)}
+#site .sc .b95{width:auto;margin:6px 8px;padding:12px 18px;font:bold 18px Arial,Helvetica,sans-serif;letter-spacing:0;text-transform:none;color:#000;background:#c0c0c0;border:3px outset #fff;border-radius:0;box-shadow:none;cursor:pointer}
+#site .sc .b95:active{border-style:inset}
+#site .sc .hr{height:6px;margin:18px 0;background:linear-gradient(90deg,#ff0000,#ff9900,#ffff00,#00ff00,#00ccff,#cc66ff,#ff0099)}
+#site .sc .box{border:4px ridge #c0c0c0;background:rgba(0,0,40,.82);padding:12px 14px;margin:14px 0}
+#site .sc h2{font-family:"Comic Sans MS","Comic Sans","Chalkboard SE",cursive;color:#ffff00;font-size:22px;margin-bottom:6px;text-decoration:underline}
+#site .sc p{margin:8px 0}
+#site .sc b{color:#fff}
+#site .sc ul{margin:6px 0 6px 24px}
+#site .sc li{margin:4px 0}
+#site .sc .uc{margin-top:10px;padding:5px;text-align:center;font:bold 13px "Courier New",monospace;color:#000;background:repeating-linear-gradient(45deg,#ffcc00 0 14px,#111 14px 28px);text-shadow:0 0 3px #ffcc00,0 0 3px #ffcc00,0 0 3px #ffcc00}
+#site .sc .cnt{color:#fff}
+#site .sc .odo{font-family:"Courier New",monospace;background:#000;color:#00ff00;border:2px inset #c0c0c0;padding:1px 6px;letter-spacing:3px}
+#site .sc small{color:#99ccff;font-size:13px}
+#site .sc .ring{font-size:15px;color:#99ccff}
+#site .sc .ring u{color:#00ffff}
+#site .sc .foot{font-size:13px;color:#c0c0c0}
 .clue{margin-top:12px!important;font-size:13.5px!important;border-left:3px solid #35e0ff;padding-left:10px;color:#cfe9ff!important}
 .lock{margin-top:10px!important;font-size:11px!important;letter-spacing:.18em;font-weight:800;color:#ff4fd8!important}
 .fine a{color:#9d95b8}
-#site .ad{display:block;max-width:468px;margin:16px auto;border:3px outset #fff;background:#ffff00;color:#000;text-align:center;padding:8px 10px 10px;text-decoration:none;font-family:Arial,Helvetica,sans-serif}
-#site .ad i{display:block;font:normal 10px Arial,sans-serif;letter-spacing:.2em;color:#555}
-#site .ad b{display:block;color:#d00000;font-size:24px;line-height:1.2}
-#site .ad span{display:block;font-size:13px;color:#000}
+#site .sc .ad{display:block;max-width:468px;margin:16px auto;border:3px outset #fff;background:#ffff00;color:#000;text-align:center;padding:8px 10px 10px;text-decoration:none;font-family:Arial,Helvetica,sans-serif}
+#site .sc .ad i{display:block;font:normal 10px Arial,sans-serif;letter-spacing:.2em;color:#555}
+#site .sc .ad b{display:block;color:#d00000;font-size:24px;line-height:1.2}
+#site .sc .ad span{display:block;font-size:13px;color:#000}
 #adslot{width:468px;min-height:60px;margin:16px auto;text-align:center}
 #adslot:before{content:"ADVERTISEMENT";display:block;font:10px Arial,sans-serif;letter-spacing:.2em;color:#99ccff;margin-bottom:3px}
 @media(max-width:520px){#adslot{zoom:.66}}
-#site .joke{background:#00ffff;border-style:ridge}
-#site .joke b{color:#cc0099}
-#site textarea{display:block;width:100%;margin-top:8px;padding:8px;font:15px "Courier New",monospace;color:#00ff00;background:#000;border:2px inset #c0c0c0;border-radius:0;resize:vertical}
-#site .drow{margin:10px 0;padding:8px;background:#000;border:2px inset #c0c0c0}
-#site .drow code{display:block;font:14px "Courier New",monospace;color:#00ff00;word-break:break-all;margin:4px 0 6px}
-#site .drow .b95{font-size:13px;padding:5px 10px;margin:0}
+#site .sc .joke{background:#00ffff;border-style:ridge}
+#site .sc .joke b{color:#cc0099}
+#site .sc textarea{display:block;width:100%;margin-top:8px;padding:8px;font:15px "Courier New",monospace;color:#00ff00;background:#000;border:2px inset #c0c0c0;border-radius:0;resize:vertical}
+#site .sc .drow{margin:10px 0;padding:8px;background:#000;border:2px inset #c0c0c0}
+#site .sc .drow code{display:block;font:14px "Courier New",monospace;color:#00ff00;word-break:break-all;margin:4px 0 6px}
+#site .sc .drow .b95{font-size:13px;padding:5px 10px;margin:0}
 .adline{margin-top:10px!important;font-size:11px!important;text-align:center;color:#9d95b8!important}
 </style>
 </head>
 <body>
+<div id="game">
 <canvas id="c"></canvas>
 <div id="hud">
   <div id="top">
@@ -119,13 +124,18 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
 </div>
 <div id="lift"><small>FLOOR</small><b id="liftN">1</b><span>Please enjoy the hold music.</span></div>
 <div id="ov"><div class="card" id="card"></div></div>
+</div>
 
 <div id="site">
  <div class="pg">
+ <div class="sc">
   <div class="mq"><span>*** WELCOME TO THE OFFICIAL ATG &minus;VI HOME PAGE *** NOW IN GLORIOUS 3D *** NO CARS WERE STOLEN IN THE MAKING OF THIS GAME *** PLEASE DRIVE RESPONSIBLY *** SIGN THE GUESTBOOK (WHEN IT WORKS) ***</span></div>
   <h1 class="rb">ATG &minus;VI</h1>
   <div class="sub">~ Auto Theft, Grand. In reverse. ~</div>
-  <div class="ctr"><span class="blink new">NEW!</span> <button class="b95" id="enter">&#9658; CLICK HERE TO PLAY &#9668;</button> <span class="blink new">FREE!</span></div>
+  <div class="ctr" style="margin-bottom:0"><span class="blink new">NEW!</span> <b>&#9660; PRESS START TO PLAY &#9660;</b> <span class="blink new">FREE!</span></div>
+ </div>
+ <div id="gslot"></div>
+ <div class="sc">
   <a class="ad" id="ad1"><i>ADVERTISEMENT</i><b></b><span></span></a>
   <!-- AD NETWORK CODE: paste your ad network snippet inside the next div when you host this page yourself -->
   <div id="adslot">
@@ -172,7 +182,7 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
    <p><b>Q: Is this affiliated with that other game?</b><br>A: No. This is an original parody. Not affiliated with or endorsed by any other game or publisher.</p>
   </div>
   <div class="hr"></div>
-  <div class="ctr"><button class="b95" id="enter2">&#9658; ENTER THE GAME &#9668;</button></div>
+  <div class="ctr"><button class="b95" id="enter2">&#9650; BACK UP TO THE GAME &#9650;</button></div>
   <div class="box" id="sug" style="display:none">
    <h2>Suggestion Box</h2>
    <p>Got an idea for the game? Drop it in the box!! The management reads every one. Please do not include your name, e-mail or any other personal details.</p>
@@ -190,6 +200,7 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
   <div class="ctr cnt">You are visitor number <span class="odo">0000001</span>*<br><small>*this counter does not actually count</small></div>
   <div class="ctr ring">[ <u>&lt;&lt; Prev</u> | <u>Random</u> | <u>Next &gt;&gt;</u> ]<br>This site is a proud member of the Law-Abiding Drivers WebRing.<br>(The ring has one member.)</div>
   <div class="ctr foot">Best viewed at 800&times;600 with a 56k modem. Made with Notepad. &copy; 2026</div>
+ </div>
  </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -247,10 +258,18 @@ if(SITE.donate.length){
 }
 const cv=$('c');
 const site=$('site');
-function enterGame(){site.style.display='none';try{location.hash='play'}catch(_){}}
-$('enter').onclick=enterGame;$('enter2').onclick=enterGame;
-if(location.hash==='#play')site.style.display='none';
-addEventListener('hashchange',()=>{site.style.display=location.hash==='#play'?'none':'block'});
+const gameEl=$('game');let onDock=null;
+/* The game lives in a frame on the home page (embedded) until Start is pressed, then fills the screen. */
+function dock(emb){
+  if(gameEl.classList.contains('emb')!==emb||!gameEl.dataset.d){
+    gameEl.dataset.d=1;(emb?$('gslot'):document.body).appendChild(gameEl);gameEl.classList.toggle('emb',emb);
+  }
+  site.style.display=emb?'block':'none';if(onDock)onDock();
+}
+function enterGame(){dock(false);try{location.hash='play'}catch(_){}}
+$('enter2').onclick=()=>{site.scrollTop=0};
+dock(location.hash!=='#play');
+addEventListener('hashchange',()=>{dock(location.hash!=='#play')});
 if(!window.THREE){$('card').innerHTML='<h2>Could not load the 3D engine.</h2><p>Check your connection and reload the page.</p>';return}
 let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'})}
@@ -720,11 +739,11 @@ function update(dt){
 /* ---------- render ---------- */
 let W=0,H=0;
 function resize(){
-  W=innerWidth;H=innerHeight;
+  W=gameEl.clientWidth||innerWidth;H=gameEl.clientHeight||innerHeight;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(W,H,false);
   cam3.aspect=W/H;cam3.fov=W<H?80:60;cam3.updateProjectionMatrix();
 }
-addEventListener('resize',resize);resize();
+addEventListener('resize',resize);onDock=resize;resize();
 const put=(m,o)=>{m.position.set(o.x,0,o.y);m.rotation.y=-o.a};
 const co={x:0,y:0,r:7},cp={x:0,y:60,z:0};
 function draw(dt,now){
@@ -823,7 +842,7 @@ function show(html,label,fn){
   G.state='menu';joy=null;
   $('card').innerHTML=html+'<button id="go">'+label+'</button>';
   $('ov').classList.remove('hide');$('hud').style.visibility='hidden';
-  $('go').onclick=fn;
+  $('go').onclick=()=>{if(gameEl.classList.contains('emb'))enterGame();fn()};
 }
 function play(){initAudio();$('ov').classList.add('hide');$('hud').style.visibility='visible';startCase();G.state='play';hud()}
 function brief(){
@@ -851,7 +870,7 @@ function ending(){
 }
 function title(){
   show('<div class="logo">ATG <span>−VI</span></div><div class="tag">Auto Theft, Grand. In reverse.</div><p>Everyone else in Miami steals cars. You are the one who brings them back, without a scratch. The story starts at the end and runs backwards.</p><ul><li>Phone: hold to drive, drag sideways to steer, pull down to brake.</li><li>Let go of the steering and the truck lines itself up with the street.</li><li>Keyboard: arrow keys or WASD.</li><li>Less chaos, more pay.</li><li>Six cases, one epilogue, and whatever is going on up on floor 55.</li></ul>','Start',()=>{initAudio();brief()});
-  $('card').insertAdjacentHTML('beforeend','<div class="fine"><a href="#home" id="home">Back to the home page</a></div>');$('home').onclick=e=>{e.preventDefault();site.style.display='block';site.scrollTop=0;try{location.hash='home'}catch(_){}};
+  $('card').insertAdjacentHTML('beforeend','<div class="fine homelnk"><a href="#home" id="home">Back to the home page</a></div>');$('home').onclick=e=>{e.preventDefault();dock(true);site.scrollTop=0;try{location.hash='home'}catch(_){}};
   let taps=0;document.querySelector('.logo').onclick=()=>{if(++taps===6)document.querySelector('.tag').textContent='No cheat codes. That would be stealing.'};
   $('card').insertAdjacentHTML('beforeend','<div class="fine">An original parody game. Not affiliated with or endorsed by any other game or publisher.</div>');
 }
