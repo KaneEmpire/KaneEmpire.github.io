@@ -172,6 +172,7 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
   <div class="box" id="don" style="display:none">
    <h2>Tip Jar</h2>
    <p>This game is free, and it was built with an AI that runs on tokens. If it made you smile, you can leave a tip and buy it a few more. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p>
+   <p><i>O jogo &eacute; de gra&ccedil;a e foi feito com uma IA que roda a tokens. Se te fez sorrir, deixa uma gorjeta e compra mais uns pra ela.</i></p>
    <div id="donL"></div>
   </div>
   <div class="hr"></div>
@@ -233,6 +234,10 @@ button{margin-top:18px;width:100%;border:0;border-radius:12px;padding:15px;font:
    joke.text / .sub : the words on the blue joke banner near the bottom
    suggestKey       : the Web3Forms access key that forwards suggestions to
                       your e-mail. Leave '' to hide the Suggestion Box.
+   goatcounter      : your GoatCounter code (the part before .goatcounter.com)
+                      to count visits without cookies. Leave '' for none.
+   donate           : a line can also be a payment link instead of a coin:
+                      {label:'Pix (Brasil)',url:'https://livepix.gg/yourname'},
    donate           : one line per coin, for example
                       {label:'Bitcoin (BTC)',address:'bc1...'},
                       Leave the list empty to hide the Tip Jar.            */
@@ -240,6 +245,7 @@ const SITE={
   ad:{text:'YOUR AD HERE',sub:'This banner is for rent. Reasonable rates. No stolen goods.',url:''},
   joke:{text:'STILL WAITING FOR THAT OTHER SIXTH GAME?',sub:'Ours is out today. We just counted the other way. No trailer. No pre-order. No delays. No stolen cars.',url:''},
   suggestKey:'',
+  goatcounter:'',
   donate:[
     {label:'Ethereum (ETH)',address:'0xecC574489cAd023c307C091EaA69ee436DA7B1ae'},
     {label:'Bitcoin (BTC)',address:'bc1qy46nqqmhxtfcxzxwvq2z6w6a7r3fdz0yj4usn3'},
@@ -276,6 +282,10 @@ if(SITE.suggestKey){
   };
 }
 /* "Tip with MetaMask": only for Ethereum-style addresses (0x + 40 hex). The visitor confirms everything in their own wallet. */
+/* Visit counting (GoatCounter, no cookies). Does nothing while SITE.goatcounter is ''. */
+if(/^[a-z0-9-]+$/i.test(SITE.goatcounter)){const g=document.createElement('script');g.async=true;g.dataset.goatcounter='https://'+SITE.goatcounter+'.goatcounter.com/count';g.src='https://gc.zgo.at/count.js';document.head.appendChild(g)}
+function ev(n){try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:'event/'+n,title:n,event:true})}catch(_){}}
+function tipLine(){return SITE.donate.length?'<p class="adline"><a href="#" class="tipA" style="color:#ffd23f">The game is free. If it made you smile, the tip jar is here.<br>Curtiu? O pote de gorjeta é aqui.</a></p>':''}
 const isEth=a=>/^0x[0-9a-fA-F]{40}$/.test(a);
 function mmTip(addr,eth,say){
   const e=window.ethereum,v=Number(eth);
@@ -292,10 +302,15 @@ if(SITE.donate.length){
   $('don').style.display='block';
   SITE.donate.forEach(d=>{
     const r=document.createElement('div');r.className='drow';
+    if(d.url){
+      if(!/^https:\/\//.test(d.url))return;
+      r.innerHTML='<b>'+esc(d.label)+'</b><div style="margin-top:6px"><a class="b95" style="display:inline-block;text-decoration:none" target="_blank" rel="noopener">Deixar um Pix / Leave a tip</a></div>';
+      r.querySelector('a').href=d.url;r.querySelector('a').onclick=()=>ev('tip_click');$('donL').appendChild(r);return;
+    }
     r.innerHTML='<b>'+esc(d.label)+'</b><code>'+esc(d.address)+'</code><button class="b95">Copy address</button>';
     r.querySelector('button').onclick=function(){
       const done=()=>{this.textContent='Copied!'},sel=()=>{const g=getSelection(),n=document.createRange();n.selectNodeContents(r.querySelector('code'));g.removeAllRanges();g.addRange(n);this.textContent='Selected: now copy'};
-      try{navigator.clipboard.writeText(d.address).then(done,sel)}catch(_){sel()}
+      ev('tip_click');try{navigator.clipboard.writeText(d.address).then(done,sel)}catch(_){sel()}
     };
     if(isEth(d.address)){
       const m=document.createElement('div');m.className='mm';
@@ -893,6 +908,7 @@ function show(html,label,fn,stay){
   $('card').innerHTML=html+'<button id="go">'+label+'</button>';
   $('ov').classList.remove('hide');$('hud').style.visibility='hidden';
   $('go').onclick=()=>{if(!stay&&gameEl.classList.contains('emb'))enterGame();fn()};
+  $('card').querySelectorAll('.tipA').forEach(a=>{a.onclick=e=>{e.preventDefault();tips(()=>show(html,label,fn,stay))}});
 }
 function play(){initAudio();$('ov').classList.add('hide');$('hud').style.visibility='visible';startCase();G.state='play';hud()}
 function brief(){
@@ -901,6 +917,7 @@ function brief(){
   show('<div class="tag">Case '+c.n+' · '+c.when+'</div><h2>'+c.title+'</h2><p>'+c.text+'</p><ul><li>'+(c.moving?'The car is moving. Follow the yellow beam and stay close until it is hooked.':'The car is parked under the yellow beam. Pull up beside it.')+'</li><li>Tow it to the green beam and stop.</li><li>Fee '+money(c.fee)+'. Every bump costs you.</li></ul>','Take the case',play);
 }
 function finish(){
+  ev('case_done');
   const c=CASES[G.idx],ch=Math.round(G.chaos),dmg=ch*15,tb=Math.max(0,Math.round((c.par-G.time)*8)),cl=ch===0?500:0,tot=Math.max(0,c.fee-dmg+tb+cl);
   G.cash+=tot;G.chaosSum+=ch;if(cl)G.clean++;
   const last=G.idx===CASES.length-1;
@@ -909,7 +926,7 @@ function finish(){
    '<tr><td>Damages ('+ch+' chaos)</td><td class="neg">−'+money(dmg)+'</td></tr>'+
    '<tr><td>Speed bonus</td><td class="pos">+'+money(tb)+'</td></tr>'+
    '<tr><td>Spotless bonus</td><td class="pos">+'+money(cl)+'</td></tr>'+
-   '<tr class="tot"><td>Paid</td><td>'+money(tot)+'</td></tr></table><p class="clue"><b>Found in the car:</b> '+CLUES[G.idx]+'</p><p class="lock">Floor −66 file \u00b7 '+(G.idx+1)+' of 6 clues \u00b7 locked</p><p class="adline">This case was brought to you by: <b>'+esc(SITE.ad.text)+'</b></p>',
+   '<tr class="tot"><td>Paid</td><td>'+money(tot)+'</td></tr></table><p class="clue"><b>Found in the car:</b> '+CLUES[G.idx]+'</p><p class="lock">Floor −66 file \u00b7 '+(G.idx+1)+' of 6 clues \u00b7 locked</p><p class="adline">This case was brought to you by: <b>'+esc(SITE.ad.text)+'</b></p>'+tipLine(),
    last?'See the ending':'Go further back',()=>{if(last)ending();else{G.idx++;brief()}});
 }
 function fail(){
@@ -918,10 +935,12 @@ function fail(){
 function ending(){
   show('<div class="tag">One year earlier</div><h2>You got your car back.</h2><p>It was the first one they ever took. The rest you already know: six cases, one ring, everybody in cuffs.</p><p>But this story started at the end. So what happened after?</p>','One more thing',briefE);
 }
-function tips(){
-  show('<div class="tag">Tip jar</div><h2>Buy the AI more tokens.</h2><p>This game is free, and it was built with an AI that runs on tokens. If it made you smile, you can leave a tip. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p><div id="tipR"></div>','Back',title,true);
+function tips(back){
+  ev('tip_open');
+  show('<div class="tag">Tip jar</div><h2>Buy the AI more tokens.</h2><p>This game is free, and it was built with an AI that runs on tokens. If it made you smile, you can leave a tip. Send only the coin named on each line, and check the first and last four characters of the address after you paste it.</p><p style="font-size:13px"><i>O jogo é de graça e foi feito com uma IA que roda a tokens. Se te fez sorrir, deixa uma gorjeta.</i></p><div id="tipR"></div>','Back',back||title,true);
   SITE.donate.forEach(d=>{
     const r=document.createElement('p');r.className='clue';
+    if(d.url){if(!/^https:\/\//.test(d.url))return;r.innerHTML='<b>'+esc(d.label)+'</b><br><a target="_blank" rel="noopener" style="color:#ffd23f">Deixar um Pix / Leave a tip</a>';r.querySelector('a').href=d.url;r.querySelector('a').onclick=()=>ev('tip_click');$('tipR').appendChild(r);return}
     r.innerHTML='<b>'+esc(d.label)+'</b><br><span style="word-break:break-all;-webkit-user-select:text;user-select:text">'+esc(d.address)+'</span><br><a href="#" style="color:#ffd23f">Copy address</a>';
     r.querySelector('a').onclick=function(e){e.preventDefault();const t=this,no=()=>{t.textContent='Select the address above and copy it'};try{navigator.clipboard.writeText(d.address).then(()=>{t.textContent='Copied!'},no)}catch(_){no()}};
     if(isEth(d.address)){
@@ -932,7 +951,7 @@ function tips(){
   });
 }
 function title(){
-  show('<div class="logo">ATG <span>−VI</span></div><div class="tag">Auto Theft, Grand. In reverse.</div><p>Everyone else in Miami steals cars. You are the one who brings them back, without a scratch. The story starts at the end and runs backwards.</p><ul><li>Phone: hold to drive, drag sideways to steer, pull down to brake.</li><li>Let go of the steering and the truck lines itself up with the street.</li><li>Keyboard: arrow keys or WASD.</li><li>Less chaos, more pay.</li><li>Six cases, one epilogue, and whatever is going on down on floor −66.</li></ul>','Start',()=>{initAudio();brief()});
+  show('<div class="logo">ATG <span>−VI</span></div><div class="tag">Auto Theft, Grand. In reverse.</div><p>Everyone else in Miami steals cars. You are the one who brings them back, without a scratch. The story starts at the end and runs backwards.</p><ul><li>Phone: hold to drive, drag sideways to steer, pull down to brake.</li><li>Let go of the steering and the truck lines itself up with the street.</li><li>Keyboard: arrow keys or WASD.</li><li>Less chaos, more pay.</li><li>Six cases, one epilogue, and whatever is going on down on floor −66.</li></ul>','Start',()=>{ev('start');initAudio();brief()});
   $('card').insertAdjacentHTML('beforeend','<div class="fine homelnk"><a href="#home" id="home">Back to the home page</a></div>');$('home').onclick=e=>{e.preventDefault();dock(true);site.scrollTop=0;try{location.hash='home'}catch(_){}};
   if(SITE.donate.length){$('card').insertAdjacentHTML('beforeend','<div class="fine"><a href="#" id="tipL" style="color:#ffd23f">Tip jar: buy the AI more tokens</a></div>');$('tipL').onclick=e=>{e.preventDefault();tips()}}
   let taps=0;document.querySelector('.logo').onclick=()=>{if(++taps===6)document.querySelector('.tag').textContent='No cheat codes. That would be stealing.'};
@@ -1065,7 +1084,7 @@ function finishE(){
    '<tr><td>Collection plate ('+E.conv+' converts)</td><td class="pos">+'+money(plate)+'</td></tr>'+
    '<tr><td>Clubs closed</td><td class="pos">+'+money(cl)+'</td></tr>'+
    '<tr><td>Speed bonus</td><td class="pos">+'+money(tb)+'</td></tr>'+
-   '<tr class="tot"><td>Total so far</td><td>'+money(G.cash)+'</td></tr></table>','One last job',briefBR);
+   '<tr class="tot"><td>Total so far</td><td>'+money(G.cash)+'</td></tr></table>'+tipLine(),'One last job',briefBR);
 }
 
 /* ---------- phase -55: the boiler room ---------- */
@@ -1240,7 +1259,7 @@ function finishBR(){
    '<tr><td>Driving rank</td><td>'+rank+'</td></tr>'+
    '<tr><td>Spotless cases</td><td>'+G.clean+' of '+CASES.length+'</td></tr>'+
    (best>0?'<tr><td>Previous best</td><td>'+money(best)+'</td></tr>':'')+
-   '<tr class="tot"><td>Total earned</td><td>'+money(G.cash)+'</td></tr></table>','Play again',()=>{G.idx=0;G.cash=0;G.chaosSum=0;G.clean=0;brief()});
+   '<tr class="tot"><td>Total earned</td><td>'+money(G.cash)+'</td></tr></table>'+tipLine(),'Play again',()=>{G.idx=0;G.cash=0;G.chaosSum=0;G.clean=0;brief()});
 }
 
 /* ---------- loop ---------- */
